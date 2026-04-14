@@ -1,0 +1,163 @@
+# Tool Mapping Configuration
+# Maps each player "Tool" (scouting ability) to the public stats that measure it.
+#
+# Schema per tool:
+#   phase:        attack | defense | rebounding | intangibles
+#   skill_group:  sub-category within phase
+#   stats:        list of panel column names from nba_panel_raw.csv
+#   aggregation:  weighted_z | custom
+#   weights:      list of floats (same length as stats); negative = lower is better
+#   formula:      used only when aggregation == "custom"
+#
+# Z-score direction: all stats are normalized so HIGHER z-score = BETTER tool.
+# For inverse stats (e.g. DRTG, TOV_pct), use a negative weight.
+
+tools:
+
+  # ── ATTACK / Scoring ────────────────────────────────────────────────────────
+
+  shooting_ability:
+    phase: attack
+    skill_group: scoring
+    stats: [TS_pct, eFG_pct, FG3_pct, FT_pct]
+    aggregation: weighted_z
+    weights: [0.35, 0.25, 0.30, 0.10]
+
+  finishing_at_rim:
+    phase: attack
+    skill_group: scoring
+    stats: [PTS, TS_pct, USG_pct]
+    aggregation: weighted_z
+    weights: [0.40, 0.40, 0.20]
+    # TODO: replace with FG% at rim from nba_api shot zones when available
+
+  mid_range_efficiency:
+    phase: attack
+    skill_group: scoring
+    stats: [eFG_pct, TS_pct]
+    aggregation: weighted_z
+    weights: [0.60, 0.40]
+    # TODO: isolate mid-range zone stats from shot-zone data
+
+  # ── ATTACK / Creation ───────────────────────────────────────────────────────
+
+  handling:
+    phase: attack
+    skill_group: creation
+    stats: [AST_pct, TOV_pct, USG_pct]
+    aggregation: custom
+    # AST% up, TOV% penalized, USG% gives context weight
+    formula: "AST_pct_z - 0.8 * TOV_pct_z + 0.2 * USG_pct_z"
+
+  passing_vision:
+    phase: attack
+    skill_group: creation
+    stats: [AST_per36, AST_TO_ratio, AST_pct]
+    aggregation: weighted_z
+    weights: [0.40, 0.30, 0.30]
+
+  pick_and_roll:
+    phase: attack
+    skill_group: creation
+    stats: [AST_pct, USG_pct, TS_pct]
+    aggregation: weighted_z
+    weights: [0.45, 0.30, 0.25]
+    # TODO: replace with Synergy PnR ball-handler frequency when available
+
+  # ── ATTACK / Off-ball ───────────────────────────────────────────────────────
+
+  spot_up_shooting:
+    phase: attack
+    skill_group: off_ball
+    stats: [FG3_pct, eFG_pct, FG3A_per36]
+    aggregation: weighted_z
+    weights: [0.45, 0.30, 0.25]
+
+  cutting:
+    phase: attack
+    skill_group: off_ball
+    stats: [PTS, TS_pct]
+    aggregation: weighted_z
+    weights: [0.50, 0.50]
+    # TODO: replace with Synergy cut frequency when available
+
+  # ── DEFENSE / On-ball ───────────────────────────────────────────────────────
+
+  perimeter_containment:
+    phase: defense
+    skill_group: on_ball
+    stats: [STL_per36, DBPM, DRTG]
+    aggregation: weighted_z
+    weights: [0.35, 0.45, -0.20]   # DRTG: lower = better, hence negative
+
+  post_defense:
+    phase: defense
+    skill_group: on_ball
+    stats: [BLK_per36, DBPM, DRTG]
+    aggregation: weighted_z
+    weights: [0.30, 0.40, -0.30]
+
+  # ── DEFENSE / Off-ball ──────────────────────────────────────────────────────
+
+  help_rotation:
+    phase: defense
+    skill_group: off_ball
+    stats: [DBPM, DRTG, BLK_per36]
+    aggregation: weighted_z
+    weights: [0.45, -0.30, 0.25]
+
+  rim_protection:
+    phase: defense
+    skill_group: off_ball
+    stats: [BLK_per36, BLK_pct, DRTG, DBPM]
+    aggregation: weighted_z
+    weights: [0.25, 0.35, -0.20, 0.20]
+
+  # ── DEFENSE / Disruption ────────────────────────────────────────────────────
+
+  disruption:
+    phase: defense
+    skill_group: disruption
+    stats: [STL_per36, BLK_per36, DBPM]
+    aggregation: weighted_z
+    weights: [0.40, 0.30, 0.30]
+
+  # ── REBOUNDING ──────────────────────────────────────────────────────────────
+
+  oreb_pct:
+    phase: rebounding
+    skill_group: offensive_glass
+    stats: [OREB_pct, OREB_per36]
+    aggregation: weighted_z
+    weights: [0.60, 0.40]
+
+  dreb_pct:
+    phase: rebounding
+    skill_group: defensive_glass
+    stats: [DREB_pct, DREB_per36]
+    aggregation: weighted_z
+    weights: [0.60, 0.40]
+
+  # ── INTANGIBLES ─────────────────────────────────────────────────────────────
+
+  efficiency:
+    phase: intangibles
+    skill_group: efficiency
+    stats: [TS_pct, WS_48, BPM]
+    aggregation: weighted_z
+    weights: [0.30, 0.40, 0.30]
+
+  usage_discipline:
+    phase: intangibles
+    skill_group: efficiency
+    stats: [TOV_pct, AST_TO_ratio, USG_pct]
+    aggregation: custom
+    # low TOV%, high AST/TO, reasonable USG%
+    formula: "-0.5 * TOV_pct_z + 0.35 * AST_TO_ratio_z + 0.15 * USG_pct_z"
+
+  durability:
+    phase: intangibles
+    skill_group: durability
+    stats: [GP, MPG]
+    aggregation: weighted_z
+    weights: [0.55, 0.45]

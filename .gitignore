@@ -1,0 +1,32 @@
+# Data files (large, generated)
+data/*.csv
+data/*.parquet
+
+# Reports (generated)
+reports/player_cards/*.md
+reports/*.xlsx
+
+# Environment
+.env
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.egg-info/
+dist/
+build/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

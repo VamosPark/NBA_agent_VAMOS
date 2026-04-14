@@ -1,0 +1,101 @@
+# Player Type Configuration
+# Defines expected archetypes and which Tools are their key features.
+#
+# Schema per player_type:
+#   player_type:    string identifier (snake_case)
+#   description:    one-line human-readable label
+#   key_features:   tools from tool_mapping.yaml that define this archetype
+#                   (high score = fits the archetype)
+#   anti_features:  tools where LOW score is expected (not penalized, just
+#                   noted — used for soft-label weighting)
+#   example_players: known examples to validate the mapping
+#
+# Cluster labeling: each K-Means centroid is cosine-matched against the
+# key_feature vector. Clusters with similarity < 0.60 are surfaced to the
+# LLM for naming (see scripts/clustering.py).
+
+player_types:
+
+  - player_type: primary_creator
+    description: "Ball-dominant guard or wing who initiates offense; high usage, playmaking, shooting"
+    key_features:
+      - handling
+      - passing_vision
+      - shooting_ability
+      - pick_and_roll
+      - spot_up_shooting
+    anti_features:
+      - rim_protection
+      - oreb_pct
+    example_players: ["Stephen Curry", "Luka Doncic", "Damian Lillard"]
+
+  - player_type: shooter
+    description: "Off-ball specialist who spaces the floor; high eFG%, 3pt volume, low usage"
+    key_features:
+      - shooting_ability
+      - spot_up_shooting
+      - efficiency
+    anti_features:
+      - handling
+      - post_defense
+      - rim_protection
+    example_players: ["Klay Thompson", "Joe Harris", "Duncan Robinson"]
+
+  - player_type: defensive_anchor
+    description: "Rim protector or stopper who impacts defense more than offense"
+    key_features:
+      - rim_protection
+      - help_rotation
+      - disruption
+      - dreb_pct
+      - perimeter_containment
+    anti_features:
+      - shooting_ability
+      - pick_and_roll
+    example_players: ["Draymond Green", "Rudy Gobert", "Bam Adebayo"]
+
+  - player_type: two_way_wing
+    description: "Wing who contributes meaningfully on both ends; balanced tool profile"
+    key_features:
+      - shooting_ability
+      - perimeter_containment
+      - disruption
+      - cutting
+      - efficiency
+    anti_features: []
+    example_players: ["Kawhi Leonard", "Jimmy Butler", "Mikal Bridges"]
+
+  - player_type: playmaking_big
+    description: "Big man with elite passing, high IQ, and two-way impact; often face-up scorer"
+    key_features:
+      - passing_vision
+      - pick_and_roll
+      - efficiency
+      - rim_protection
+      - oreb_pct
+    anti_features:
+      - spot_up_shooting   # not their primary value
+    example_players: ["Nikola Jokic", "Domantas Sabonis"]
+
+  - player_type: rebounding_big
+    description: "Interior presence who dominates the glass and finishes at the rim"
+    key_features:
+      - oreb_pct
+      - dreb_pct
+      - rim_protection
+      - finishing_at_rim
+    anti_features:
+      - handling
+      - shooting_ability
+    example_players: ["Clint Capela", "Andre Drummond", "Jonas Valanciunas"]
+
+  - player_type: role_connector
+    description: "High-efficiency rotation player with no dominant tool; contributes across the board at low usage"
+    key_features:
+      - efficiency
+      - usage_discipline
+      - spot_up_shooting
+      - help_rotation
+      - durability
+    anti_features: []
+    example_players: ["Kyle Korver", "PJ Tucker", "Bruce Brown"]
